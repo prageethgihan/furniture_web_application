@@ -21,7 +21,38 @@ export const DesignCanvas = ({ state, updateState, pushToHistory }) => {
     // Constants
     const PIXELS_PER_METER = 60;
 
+    const getMousePosition = (e) => {
+        if (!svgRef.current) return { x: 0, y: 0 };
+        const CTM = svgRef.current.getScreenCTM();
+        if (!CTM) return { x: 0, y: 0 };
 
+        // CTM maps SVG coordinates to screen coordinates
+        // To get SVG coordinates from screen, we use: (Screen - Offset) / Scale
+        // CTM.a is the scale, CTM.e is the offset
+        const x = (e.clientX - CTM.e) / CTM.a;
+        const y = (e.clientY - CTM.f) / CTM.d;
+
+        // Note: We DO NOT divide by PIXELS_PER_METER here because the viewBox 
+        // is already set to the meter dimensions (e.g., 0 0 8 8).
+        // The CTM already takes care of the mapping from pixels to meters.
+        return { x, y };
+    };
+
+    const handlePointerDown = (e, item) => {
+        e.stopPropagation();
+        setSelectedId(item.id);
+        setIsDragging(true);
+
+        // Capture pointer to ensure move/up events are caught even if mouse leaves the SVG
+        e.currentTarget.setPointerCapture(e.pointerId);
+
+        const point = getMousePosition(e);
+        // dragOffset is the distance from item's center to the point where user clicked
+        setDragOffset({
+            x: point.x - item.x,
+            y: point.y - item.y
+        });
+    };
 
     const handlePointerMove = (e) => {
         if (!isDragging || !selectedId) return;
