@@ -5,7 +5,8 @@ import {
     Move,
     Scaling,
     RefreshCw,
-    Info
+    Info,
+    Copy
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -17,6 +18,7 @@ export const DesignCanvas = ({ state, updateState, pushToHistory }) => {
 
     const svgRef = useRef(null);
     const { room, items } = state;
+    const isNewDesign = items.length === 0;
 
     // Constants
     const PIXELS_PER_METER = 60;
@@ -105,6 +107,26 @@ export const DesignCanvas = ({ state, updateState, pushToHistory }) => {
         setSelectedId(null);
     };
 
+    const duplicateItem = (id) => {
+        const itemToDuplicate = state.items.find(item => item.id === id);
+        if (!itemToDuplicate) return;
+
+        const newItem = {
+            ...itemToDuplicate,
+            id: Date.now().toString(),
+            x: Math.min(room.width, itemToDuplicate.x + 0.4),
+            y: Math.min(room.length, itemToDuplicate.y + 0.4),
+        };
+
+        const newState = {
+            ...state,
+            items: [...state.items, newItem]
+        };
+        updateState(newState);
+        pushToHistory(newState);
+        setSelectedId(newItem.id);
+    };
+
     const rotateItem = (id) => {
         const newState = {
             ...state,
@@ -176,6 +198,85 @@ export const DesignCanvas = ({ state, updateState, pushToHistory }) => {
                         <circle r={0.02} fill="white" />
                     </g>
                 );
+            case 'rug':
+                return (
+                    <g>
+                        <rect x={-item.width / 2} y={-item.depth / 2} width={item.width} height={item.depth} rx="0.1" fill={color} opacity="0.8" />
+                        <rect x={-item.width / 2 + 0.05} y={-item.depth / 2 + 0.05} width={item.width - 0.1} height={item.depth - 0.1} rx="0.08" fill="none" stroke="#00000033" strokeDasharray="0.1 0.1" strokeWidth="0.02" />
+                    </g>
+                );
+            case 'desktop':
+                return (
+                    <g>
+                        <rect x={-item.width / 2} y={-item.depth / 2} width={item.width} height={item.depth} rx="0.02" fill={color} />
+                        <rect x={-0.3} y={-item.depth / 2 + 0.1} width={0.6} height={0.05} rx="0.01" fill="#ffffff" />
+                        <rect x={-0.2} y={0.1} width={0.4} height={0.15} rx="0.02" fill="#ffffff33" />
+                        <circle cx={0.3} cy={0.15} r={0.05} fill="#ffffff33" />
+                    </g>
+                );
+            case 'window':
+                return (
+                    <g>
+                        <rect x={-item.width / 2} y={-item.depth / 2} width={item.width} height={item.depth} fill={color} opacity="0.6" />
+                        <line x1={-item.width / 2} y1={0} x2={item.width / 2} y2={0} stroke="#ffffff" strokeWidth="0.02" />
+                        <line x1={0} y1={-item.depth / 2} x2={0} y2={item.depth / 2} stroke="#ffffff" strokeWidth="0.02" />
+                    </g>
+                );
+            case 'tv_unit':
+                return (
+                    <g>
+                        <rect x={-item.width / 2} y={-item.depth / 2} width={item.width} height={item.depth} rx="0.05" fill={color} />
+                        <rect x={-item.width / 2 + 0.05} y={-item.depth / 2 + 0.05} width={item.width - 0.1} height={item.depth - 0.1} rx="0.02" fill="none" stroke="#ffffff22" strokeWidth="0.01" />
+                        <rect x={-0.6} y={-item.depth / 2 + 0.1} width={1.2} height={0.05} fill="#111" />
+                        <rect x={-0.7} y={-item.depth / 2 + 0.15} width={1.4} height={0.1} rx="0.02" fill="#0a0a0a" />
+                    </g>
+                );
+            case 'door':
+                return (
+                    <g>
+                        <rect x={-item.width / 2} y={-item.depth / 2} width={item.width} height={item.depth} fill={color} />
+                        <path d={`M ${-item.width / 2} ${item.depth / 2} A ${item.width} ${item.width} 0 0 1 ${item.width / 2} ${-item.width + item.depth / 2} L ${-item.width / 2} ${-item.width + item.depth / 2} Z`} fill="none" stroke="#00000044" strokeWidth="0.02" strokeDasharray="0.05 0.05" />
+                    </g>
+                );
+            case 'plant':
+                return (
+                    <g>
+                        <circle r={item.width / 3} fill="#8b4513" />
+                        <circle r={item.width / 3 - 0.02} fill="#3e2723" />
+                        <path d={`M 0 0 Q ${-item.width / 2} ${-item.depth / 2} 0 ${-item.depth / 2} Q ${item.width / 2} ${-item.depth / 2} 0 0`} fill={color} />
+                        <path d={`M 0 0 Q ${item.width / 2} ${-item.depth / 2} ${item.width / 2} 0 Q ${item.width / 2} ${item.depth / 2} 0 0`} fill={color} />
+                        <path d={`M 0 0 Q ${item.width / 2} ${item.depth / 2} 0 ${item.depth / 2} Q ${-item.width / 2} ${item.depth / 2} 0 0`} fill={color} />
+                        <path d={`M 0 0 Q ${-item.width / 2} ${item.depth / 2} ${-item.width / 2} 0 Q ${-item.width / 2} ${-item.depth / 2} 0 0`} fill={color} opacity="0.8" />
+                    </g>
+                );
+            case 'counter':
+                return (
+                    <g>
+                        <rect x={-item.width / 2} y={-item.depth / 2} width={item.width} height={item.depth} rx="0.02" fill={color} />
+                        {/* Sink */}
+                        <rect x={-item.width / 4 - 0.2} y={-0.15} width={0.4} height={0.3} rx="0.05" fill="#a0aec0" />
+                        <circle cx={-item.width / 4} cy={0} r={0.05} fill="#718096" />
+                        {/* Stove top */}
+                        <rect x={item.width / 4 - 0.25} y={-0.2} width={0.5} height={0.4} rx="0.02" fill="#2d3748" />
+                        <circle cx={item.width / 4 - 0.12} cy={-0.08} r={0.08} fill="#e53e3e" />
+                        <circle cx={item.width / 4 + 0.12} cy={-0.08} r={0.08} fill="#e53e3e" />
+                        <circle cx={item.width / 4 - 0.12} cy={0.12} r={0.06} fill="#e53e3e" />
+                        <circle cx={item.width / 4 + 0.12} cy={0.12} r={0.06} fill="#e53e3e" />
+                    </g>
+                );
+            case 'fridge':
+                return (
+                    <g>
+                        <rect x={-item.width / 2} y={-item.depth / 2} width={item.width} height={item.depth} rx="0.05" fill={color} />
+                        {/* Door split */}
+                        <line x1={0} y1={-item.depth / 2} x2={0} y2={item.depth / 2} stroke="#00000033" strokeWidth="0.02" />
+                        {/* Handles */}
+                        <rect x={-0.1} y={-item.depth / 2 + 0.05} width={0.02} height={0.3} rx="0.01" fill="#718096" />
+                        <rect x={0.08} y={-item.depth / 2 + 0.05} width={0.02} height={0.3} rx="0.01" fill="#718096" />
+                        {/* Top vent / detail */}
+                        <rect x={-item.width / 2 + 0.05} y={-item.depth / 2 + 0.02} width={item.width - 0.1} height={0.02} rx="0.01" fill="#00000022" />
+                    </g>
+                );
             default:
                 return <rect x={-item.width / 2} y={-item.depth / 2} width={item.width} height={item.depth} rx="0.05" fill={color} />;
         }
@@ -218,6 +319,14 @@ export const DesignCanvas = ({ state, updateState, pushToHistory }) => {
                     <rect width="100%" height="100%" fill="url(#major-grid)" />
 
                     <rect width="100%" height="100%" fill="none" stroke="#58a6ff33" strokeWidth="0.1" />
+
+                    {isNewDesign && (
+                        <g transform={`translate(${room.width / 2}, ${room.length / 2})`} style={{ pointerEvents: 'none' }}>
+                            <rect x="-2" y="-0.5" width="4" height="1" rx="0.2" fill="#161b2299" stroke="#30363d" strokeWidth="0.02" />
+                            <text y="-0.1" fontSize="0.2" fill="white" textAnchor="middle" fontWeight="bold">Welcome to FurnishAR</text>
+                            <text y="0.2" fontSize="0.12" fill="#8b949e" textAnchor="middle">Drag furniture from the catalog to start</text>
+                        </g>
+                    )}
 
                     {items.map((item) => (
                         <g
@@ -285,15 +394,25 @@ export const DesignCanvas = ({ state, updateState, pushToHistory }) => {
 
                             <div className="flex gap-1.5 px-2">
                                 <button
+                                    onClick={(e) => { e.stopPropagation(); duplicateItem(selectedId); }}
+                                    className="w-10 h-10 flex items-center justify-center bg-premium-800 hover:bg-accent hover:text-white rounded-xl text-premium-400 transition-all border border-white/5 active:scale-95"
+                                    title="Duplicate"
+                                >
+                                    <Copy size={20} />
+                                </button>
+
+                                <button
                                     onClick={(e) => { e.stopPropagation(); rotateItem(selectedId); }}
-                                    className="w-10 h-10 flex items-center justify-center bg-premium-800 hover:bg-accent hover:text-white rounded-xl text-premium-400 transition-all border border-white/5 group"
+                                    className="w-10 h-10 flex items-center justify-center bg-premium-800 hover:bg-accent hover:text-white rounded-xl text-premium-400 transition-all border border-white/5 group active:scale-95"
+                                    title="Rotate 45°"
                                 >
                                     <RefreshCw size={20} className="group-hover:rotate-45 transition-transform" />
                                 </button>
 
                                 <button
                                     onClick={(e) => { e.stopPropagation(); removeItem(selectedId); }}
-                                    className="w-10 h-10 flex items-center justify-center bg-premium-800 hover:bg-red-500 hover:text-white rounded-xl text-premium-400 transition-all border border-white/5"
+                                    className="w-10 h-10 flex items-center justify-center bg-premium-800 hover:bg-red-500 hover:text-white rounded-xl text-premium-400 transition-all border border-white/5 active:scale-95"
+                                    title="Delete"
                                 >
                                     <Trash2 size={20} />
                                 </button>
