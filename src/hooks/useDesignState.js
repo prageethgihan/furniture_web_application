@@ -6,11 +6,7 @@ const INITIAL_STATE = {
         length: 8,
         wallColor: '#808e9b',
     },
-    items: [
-        { id: 'item_1', type: 'sofa', name: 'Premium Sofa', x: 2, y: 3, rotation: 180, scale: 1, color: '#2c3e50', width: 2.2, depth: 1.0 },
-        { id: 'item_2', type: 'table', name: 'Oak Dining Table', x: 5, y: 4.5, rotation: 0, scale: 1, color: '#8b4513', width: 1.8, depth: 0.9 },
-        { id: 'item_3', type: 'bed', name: 'King Size Bed', x: 2, y: 1.5, rotation: 0, scale: 1, color: '#ecf0f1', width: 2.0, depth: 2.0 },
-    ],
+    items: [],
 };
 
 const API_URL = 'http://localhost:5000/api/designs';
@@ -116,17 +112,14 @@ export const useDesignState = () => {
         historyIndexRef.current = 0;
     }, []);
 
+    const clearDesign = useCallback(() => {
+        const clearedState = { ...state, items: [] };
+        setState(clearedState);
+        pushToHistory(clearedState);
+    }, [state, pushToHistory]);
+
     useEffect(() => {
-        loadDesignsList().then(designs => {
-            if (designs && designs.length > 0 && !designId) {
-                const latest = designs[0];
-                const loadedState = latest.design_data;
-                setState(loadedState);
-                setDesignId(latest.id);
-                historyRef.current = [loadedState];
-                historyIndexRef.current = 0;
-            }
-        });
+        loadDesignsList();
     }, [loadDesignsList]);
 
     return {
@@ -141,6 +134,7 @@ export const useDesignState = () => {
         savedDesigns,
         loadSpecificDesign,
         createNewDesign,
+        clearDesign,
         activeDesignId: designId
     };
 };
