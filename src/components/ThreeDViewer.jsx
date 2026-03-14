@@ -174,8 +174,216 @@ const FurnitureBox = ({ width, depth, color, position, rotation, type, room }) =
                 </group>
             )}
 
+            {/* --- RUG MODEL --- */}
+            {type === 'rug' && (
+                <group>
+                    <mesh position={[0, 0.01, 0]} receiveShadow>
+                        <boxGeometry args={[width, 0.02, depth]} />
+                        <meshStandardMaterial color={color} roughness={0.9} />
+                    </mesh>
+                </group>
+            )}
+
+            {/* --- DESKTOP MODEL --- */}
+            {type === 'desktop' && (
+                <group>
+                    {/* Table Base */}
+                    <RoundedBox args={[width, 0.05, depth]} radius={0.01} position={[0, 0.75, 0]} castShadow receiveShadow>
+                        <meshStandardMaterial color={color} roughness={0.5} />
+                    </RoundedBox>
+                    {/* Legs */}
+                    {[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([lx, lz], i) => (
+                        <mesh key={i} position={[lx * (width / 2 - 0.05), 0.35, lz * (depth / 2 - 0.05)]} castShadow>
+                            <boxGeometry args={[0.04, 0.7, 0.04]} />
+                            <meshStandardMaterial color="#222" />
+                        </mesh>
+                    ))}
+                    {/* Monitor */}
+                    <RoundedBox args={[0.6, 0.35, 0.05]} radius={0.01} position={[0, 0.75 + 0.3, -depth / 2 + 0.15]} castShadow>
+                        <meshStandardMaterial color="#111" />
+                    </RoundedBox>
+                    <mesh position={[0, 0.75 + 0.15, -depth / 2 + 0.15]} castShadow>
+                        <cylinderGeometry args={[0.02, 0.02, 0.3]} />
+                        <meshStandardMaterial color="#333" />
+                    </mesh>
+                    <mesh position={[0, 0.75 + 0.025, -depth / 2 + 0.15]} castShadow>
+                        <boxGeometry args={[0.2, 0.02, 0.1]} />
+                        <meshStandardMaterial color="#333" />
+                    </mesh>
+                </group>
+            )}
+
+            {/* --- WINDOW/DOOR --- */}
+            {(type === 'window' || type === 'door') && (
+                <group>
+                    <RoundedBox args={[width, type === 'door' ? 2 : 1.2, depth]} radius={0.01} position={[0, type === 'door' ? 1 : 1.5, 0]} castShadow receiveShadow>
+                        <meshStandardMaterial color={color} opacity={type === 'window' ? 0.3 : 1} transparent={type === 'window'} roughness={type === 'window' ? 0.1 : 0.8} />
+                    </RoundedBox>
+                </group>
+            )}
+
+            {/* --- TV UNIT MODEL --- */}
+            {type === 'tv_unit' && (
+                <group>
+                    {/* TV Stand Base */}
+                    <RoundedBox args={[width, 0.4, depth]} radius={0.02} position={[0, 0.2, 0]} castShadow receiveShadow>
+                        <meshStandardMaterial color={color} roughness={0.4} />
+                    </RoundedBox>
+                    {/* TV Stand Legs */}
+                    {[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([lx, lz], i) => (
+                        <mesh key={i} position={[lx * (width / 2 - 0.1), 0.05, lz * (depth / 2 - 0.1)]} castShadow>
+                            <cylinderGeometry args={[0.02, 0.01, 0.1]} />
+                            <meshStandardMaterial color="#222" />
+                        </mesh>
+                    ))}
+                    {/* TV Base/Neck */}
+                    <mesh position={[0, 0.45, -depth / 2 + 0.1]} castShadow>
+                        <boxGeometry args={[0.4, 0.1, 0.1]} />
+                        <meshStandardMaterial color="#111" />
+                    </mesh>
+                    <mesh position={[0, 0.55, -depth / 2 + 0.1]} castShadow>
+                        <cylinderGeometry args={[0.03, 0.03, 0.2]} />
+                        <meshStandardMaterial color="#111" />
+                    </mesh>
+                    {/* TV Screen */}
+                    <RoundedBox args={[1.5, 0.8, 0.05]} radius={0.01} position={[0, 0.9, -depth / 2 + 0.15]} castShadow>
+                        <meshStandardMaterial color="#0a0a0a" roughness={0.1} metalness={0.8} />
+                    </RoundedBox>
+                    {/* TV Inner Display */}
+                    <mesh position={[0, 0.9, -depth / 2 + 0.176]}>
+                        <planeGeometry args={[1.45, 0.75]} />
+                        <meshBasicMaterial color="#020817" />
+                    </mesh>
+                </group>
+            )}
+
+            {/* --- PLANT MODEL --- */}
+            {type === 'plant' && (
+                <group>
+                    {/* Pot */}
+                    <mesh position={[0, 0.2, 0]} castShadow receiveShadow>
+                        <cylinderGeometry args={[0.15, 0.1, 0.4, 16]} />
+                        <meshStandardMaterial color="#8b4513" roughness={0.8} />
+                    </mesh>
+                    {/* Soil */}
+                    <mesh position={[0, 0.39, 0]} receiveShadow>
+                        <cylinderGeometry args={[0.14, 0.14, 0.02, 16]} />
+                        <meshStandardMaterial color="#3e2723" roughness={1} />
+                    </mesh>
+                    {/* Leaves / Bush */}
+                    <mesh position={[0, 0.6, 0]} castShadow>
+                        <sphereGeometry args={[0.3, 16, 16]} />
+                        <meshStandardMaterial color={color} roughness={0.6} />
+                    </mesh>
+                    <mesh position={[-0.1, 0.5, 0.1]} castShadow>
+                        <sphereGeometry args={[0.2, 16, 16]} />
+                        <meshStandardMaterial color={color} roughness={0.6} />
+                    </mesh>
+                    <mesh position={[0.1, 0.7, -0.1]} castShadow>
+                        <sphereGeometry args={[0.25, 16, 16]} />
+                        <meshStandardMaterial color={color} roughness={0.6} />
+                    </mesh>
+                </group>
+            )}
+
+            {/* --- COUNTER/PANTRY MODEL --- */}
+            {type === 'counter' && (
+                <group>
+                    {/* Main Cabinet Base */}
+                    <RoundedBox args={[width, 0.85, depth]} radius={0.01} position={[0, 0.425, 0]} castShadow receiveShadow>
+                        <meshStandardMaterial color={color} roughness={0.6} />
+                    </RoundedBox>
+                    {/* Counter Top */}
+                    <RoundedBox args={[width + 0.04, 0.05, depth + 0.04]} radius={0.01} position={[0, 0.875, 0]} castShadow receiveShadow>
+                        <meshStandardMaterial color="#cbd5e0" roughness={0.2} metalness={0.1} />
+                    </RoundedBox>
+
+                    {/* Sink Basin */}
+                    <mesh position={[-width / 4, 0.88, 0]}>
+                        <boxGeometry args={[0.5, 0.05, 0.4]} />
+                        <meshStandardMaterial color="#a0aec0" metalness={0.8} roughness={0.2} />
+                    </mesh>
+                    {/* Faucet */}
+                    <mesh position={[-width / 4, 1.0, -0.15]} castShadow>
+                        <cylinderGeometry args={[0.01, 0.01, 0.2]} />
+                        <meshStandardMaterial color="#cbd5e0" metalness={0.9} roughness={0.1} />
+                    </mesh>
+                    <mesh position={[-width / 4, 1.1, -0.1]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+                        <cylinderGeometry args={[0.01, 0.01, 0.1]} />
+                        <meshStandardMaterial color="#cbd5e0" metalness={0.9} roughness={0.1} />
+                    </mesh>
+
+                    {/* Stove/Cooktop */}
+                    <mesh position={[width / 4, 0.905, 0]} castShadow>
+                        <boxGeometry args={[0.6, 0.01, 0.5]} />
+                        <meshStandardMaterial color="#1a202c" roughness={0.2} />
+                    </mesh>
+                    {/* Burners */}
+                    {[-0.15, 0.15].map((bx, i) => (
+                        [-0.12, 0.12].map((bz, j) => (
+                            <mesh key={`${i}-${j}`} position={[width / 4 + bx, 0.91, bz]}>
+                                <cylinderGeometry args={[0.08, 0.08, 0.01]} />
+                                <meshStandardMaterial color="#e53e3e" emissive="#e53e3e" emissiveIntensity={0.5} />
+                            </mesh>
+                        ))
+                    ))}
+
+                    {/* Cabinet Doors (Front) */}
+                    {[...Array(4)].map((_, i) => (
+                        <mesh key={i} position={[-width / 2 + (width / 4) / 2 + i * (width / 4), 0.425, depth / 2 + 0.01]}>
+                            <boxGeometry args={[width / 4 - 0.02, 0.8, 0.02]} />
+                            <meshStandardMaterial color="#ffffff22" />
+                        </mesh>
+                    ))}
+                    {/* Door Handles */}
+                    {[...Array(4)].map((_, i) => (
+                        <mesh key={`handle-${i}`} position={[-width / 2 + (width / 4) / 2 + i * (width / 4) + (i % 2 === 0 ? 0.08 : -0.08), 0.7, depth / 2 + 0.03]} castShadow>
+                            <boxGeometry args={[0.02, 0.1, 0.01]} />
+                            <meshStandardMaterial color="#a0aec0" metalness={0.8} />
+                        </mesh>
+                    ))}
+                </group>
+            )}
+
+            {/* --- REFRIGERATOR MODEL --- */}
+            {type === 'fridge' && (
+                <group>
+                    {/* Main Body */}
+                    <RoundedBox args={[width, 1.8, depth]} radius={0.02} position={[0, 0.9, 0]} castShadow receiveShadow>
+                        <meshStandardMaterial color={color} roughness={0.2} metalness={0.7} />
+                    </RoundedBox>
+                    {/* Top Door (Freezer) */}
+                    <RoundedBox args={[width + 0.02, 0.5, 0.05]} radius={0.01} position={[0, 1.5, depth / 2]} castShadow>
+                        <meshStandardMaterial color={color} roughness={0.2} metalness={0.7} />
+                    </RoundedBox>
+                    {/* Bottom Door (Fridge) */}
+                    <RoundedBox args={[width + 0.02, 1.25, 0.05]} radius={0.01} position={[0, 0.625, depth / 2]} castShadow>
+                        <meshStandardMaterial color={color} roughness={0.2} metalness={0.7} />
+                    </RoundedBox>
+                    {/* Door Split Line */}
+                    <mesh position={[0, 1.25, depth / 2 + 0.025]}>
+                        <boxGeometry args={[width + 0.02, 0.01, 0.06]} />
+                        <meshStandardMaterial color="#00000033" />
+                    </mesh>
+                    {/* Handles */}
+                    <mesh position={[-width / 2 + 0.1, 1.4, depth / 2 + 0.05]} castShadow>
+                        <cylinderGeometry args={[0.015, 0.015, 0.3]} />
+                        <meshStandardMaterial color="#cbd5e0" metalness={0.9} roughness={0.1} />
+                    </mesh>
+                    <mesh position={[-width / 2 + 0.1, 0.9, depth / 2 + 0.05]} castShadow>
+                        <cylinderGeometry args={[0.015, 0.015, 0.5]} />
+                        <meshStandardMaterial color="#cbd5e0" metalness={0.9} roughness={0.1} />
+                    </mesh>
+                    {/* Bottom Vent */}
+                    <mesh position={[0, 0.05, depth / 2]}>
+                        <boxGeometry args={[width - 0.1, 0.08, 0.02]} />
+                        <meshStandardMaterial color="#1a202c" roughness={0.8} />
+                    </mesh>
+                </group>
+            )}
+
             {/* Default Box for unknown types */}
-            {!['table', 'chair', 'sofa', 'bed', 'lamp', 'wardrobe', 'shelf'].includes(type) && (
+            {!['table', 'chair', 'sofa', 'bed', 'lamp', 'wardrobe', 'shelf', 'rug', 'desktop', 'window', 'door', 'tv_unit', 'plant', 'counter', 'fridge'].includes(type) && (
                 <RoundedBox args={[width, 0.5, depth]} radius={0.05} position={[0, 0.25, 0]} castShadow>
                     <meshStandardMaterial color={color} />
                 </RoundedBox>
@@ -226,7 +434,7 @@ const Room = ({ room, items }) => {
 export const ThreeDViewer = ({ state }) => {
     return (
         <div className="flex-1 bg-black relative w-full h-full min-h-[500px]">
-            <Canvas shadows dpr={[1, 2]}>
+            <Canvas shadows dpr={[1, 2]} gl={{ preserveDrawingBuffer: true }}>
                 <PerspectiveCamera makeDefault position={[10, 8, 10]} fov={40} />
                 <color attach="background" args={['#0d1117']} />
 
