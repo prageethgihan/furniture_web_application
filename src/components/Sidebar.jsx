@@ -8,6 +8,7 @@ import {
     Save,
     Layers,
     Box,
+    
     Palette,
     Undo,
     Redo,
