@@ -1,44 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
 @import "tailwindcss";
 
 :root {
-  --bg-color: #0d1117;
-  --surface-color: #161b22;
-  --border-color: #30363d;
-  --accent-color: #58a6ff;
-  --text-main: #c9d1d9;
-  --text-dim: #8b949e;
+  --bg-dark: #05070a;
+  --surface-dark: #0f1218;
+  --surface-light: #1a1f26;
+  --border-premium: rgba(255, 255, 255, 0.08);
+  --accent-primary: #3b82f6; /* Electric Blue */
+  --accent-secondary: #8b5cf6; /* Cyber Purple */
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
 }
 
 @theme {
-  --color-accent: var(--accent-color);
-  --color-premium-50: #f8f9fa;
-  --color-premium-100: #f1f3f5;
-  --color-premium-200: #e9ecef;
-  --color-premium-300: #dee2e6;
-  --color-premium-400: #ced4da;
-  --color-premium-500: #adb5bd;
-  --color-premium-600: #6c757d;
-  --color-premium-700: #495057;
-  --color-premium-800: #343a40;
-  --color-premium-900: #212529;
-  --color-premium-950: #0d1117;
+  --color-accent: var(--accent-primary);
+  --color-accent-alt: var(--accent-secondary);
+  --color-premium-50: #f8fafc;
+  --color-premium-100: #f1f5f9;
+  --color-premium-200: #e2e8f0;
+  --color-premium-300: #cbd5e1;
+  --color-premium-400: #94a3b8;
+  --color-premium-500: #64748b;
+  --color-premium-600: #475569;
+  --color-premium-700: #334155;
+  --color-premium-800: #1e293b;
+  --color-premium-900: #0f172a;
+  --color-premium-950: #020617;
 }
 
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-color: var(--bg-color);
-  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, .font-outfit {
+  font-family: 'Outfit', sans-serif;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -46,28 +55,95 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #30363d;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #484f58;
+  background: var(--accent-primary);
 }
 
-/* Glassmorphism Classes */
-.glass {
-  background: rgba(22, 27, 34, 0.7);
+/* Advanced Glassmorphism */
+.glass-panel {
+  background: rgba(15, 18, 24, 0.65);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--border-premium);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(48, 54, 61, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.mesh-bg {
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(217, 91%, 60%, 0.1) 0, transparent 50%), 
+    radial-gradient(at 50% 0%, hsla(262, 83%, 58%, 0.08) 0, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(217, 91%, 60%, 0.1) 0, transparent 50%);
 }
 
 .premium-shadow {
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
 }
 
 .canvas-container {
   width: 100%;
   height: 100%;
   touch-action: none;
+}
+
+/* --- Print Styles --- */
+@media print {
+  @page {
+    size: landscape;
+    margin: 0;
+  }
+
+  html,
+  body,
+  #root {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background-color: var(--bg-color) !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* Hide UI components not needed for print */
+  aside,
+  footer,
+  .print-hide,
+  .print-header {
+    display: none !important;
+  }
+
+  main {
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Adjust Canvas and SVG */
+  canvas,
+  svg {
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    border: none !important;
+  }
 }
