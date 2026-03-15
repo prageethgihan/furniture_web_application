@@ -12,11 +12,16 @@ import {
     Undo,
     Redo,
     Folder,
+<<<<<<< HEAD
     PlusSquare,
     LogOut,
     Printer
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+=======
+    PlusSquare
+} from 'lucide-react';
+>>>>>>> aa7461d23baee1d5605273d4d700876aa9959ddf
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -29,19 +34,29 @@ const FURNITURE_CATALOG = [
     { id: 'armchair', name: 'Armchair', type: 'sofa', icon: '💺', width: 0.8, depth: 0.8, color: '#ecc94b' },
     { id: 'table', name: 'Oak Table', type: 'table', icon: '🪑', width: 1.2, depth: 0.8, color: '#8b4513' },
     { id: 'coffee_table', name: 'Coffee Table', type: 'table', icon: '☕', width: 1.0, depth: 0.6, color: '#2d3748' },
+<<<<<<< HEAD
     { id: 'desktop', name: 'PC Setup', type: 'desktop', icon: '🖥️', width: 1.4, depth: 0.7, color: '#1a202c' },
     { id: 'rug', name: 'Area Rug', type: 'rug', icon: '🔲', width: 2.5, depth: 3.5, color: '#e2e8f0' },
+=======
+>>>>>>> aa7461d23baee1d5605273d4d700876aa9959ddf
     { id: 'chair', name: 'Office Chair', type: 'chair', icon: '🪑', width: 0.6, depth: 0.6, color: '#2d3748' },
     { id: 'bed', name: 'King Bed', type: 'bed', icon: '🛏️', width: 2, depth: 2, color: '#edf2f7' },
     { id: 'wardrobe', name: 'Wardrobe', type: 'wardrobe', icon: '🚪', width: 1.5, depth: 0.6, color: '#718096' },
     { id: 'shelf', name: 'Bookshelf', type: 'shelf', icon: '📚', width: 1.2, depth: 0.3, color: '#A0AEC0' },
     { id: 'lamp', name: 'Floor Lamp', type: 'lamp', icon: '💡', width: 0.4, depth: 0.4, color: '#f6ad55' },
+<<<<<<< HEAD
     { id: 'tv_unit', name: 'TV Unit', type: 'tv_unit', icon: '📺', width: 1.8, depth: 0.4, color: '#1a202c' },
     { id: 'fridge', name: 'Refrigerator', type: 'fridge', icon: '🧊', width: 0.7, depth: 0.7, color: '#e2e8f0' },
     { id: 'counter', name: 'Kitchen Counter', type: 'counter', icon: '🔪', width: 2.0, depth: 0.6, color: '#f7fafc' },
     { id: 'plant', name: 'Indoor Plant', type: 'plant', icon: '🪴', width: 0.5, depth: 0.5, color: '#48bb78' },
     { id: 'window', name: 'Window', type: 'window', icon: '🪟', width: 1.5, depth: 0.2, color: '#90cdf4' },
     { id: 'door', name: 'Door', type: 'door', icon: '🚪', width: 0.9, depth: 0.1, color: '#9c4221' },
+=======
+    { id: 'tv_unit', name: 'TV Unit', type: 'table', icon: '📺', width: 1.8, depth: 0.4, color: '#1a202c' },
+    { id: 'fridge', name: 'Refrigerator', type: 'wardrobe', icon: '🧊', width: 0.7, depth: 0.7, color: '#e2e8f0' },
+    { id: 'counter', name: 'Kitchen Counter', type: 'table', icon: '🔪', width: 2.0, depth: 0.6, color: '#f7fafc' },
+    { id: 'plant', name: 'Indoor Plant', type: 'lamp', icon: '🪴', width: 0.5, depth: 0.5, color: '#48bb78' },
+>>>>>>> aa7461d23baee1d5605273d4d700876aa9959ddf
 ];
 
 export const Sidebar = ({
@@ -56,12 +71,16 @@ export const Sidebar = ({
     savedDesigns,
     loadSpecificDesign,
     createNewDesign,
+<<<<<<< HEAD
     clearDesign,
+=======
+>>>>>>> aa7461d23baee1d5605273d4d700876aa9959ddf
     activeDesignId,
     viewMode,
     setViewMode
 }) => {
     const [activeTab, setActiveTab] = useState('room');
+<<<<<<< HEAD
     const navigate = useNavigate();
 
     // Get user from localStorage
@@ -73,6 +92,8 @@ export const Sidebar = ({
         // Here you can add logic to clear session/local storage if needed
         navigate('/');
     };
+=======
+>>>>>>> aa7461d23baee1d5605273d4d700876aa9959ddf
 
     const addItem = (item) => {
         const newItem = {
@@ -107,6 +128,7 @@ export const Sidebar = ({
 
     return (
         <aside className="w-80 h-full border-r border-premium-800 bg-premium-900 flex flex-col z-10 select-none overflow-y-auto">
+<<<<<<< HEAD
             <div className="p-6 border-b border-premium-800 flex flex-col gap-4">
                 <div className="flex justify-between items-start">
                     <div>
@@ -137,6 +159,14 @@ export const Sidebar = ({
                         <LogOut size={16} />
                     </button>
                 </div>
+=======
+            <div className="p-6 border-b border-premium-800">
+                <h1 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+                    <Layers className="text-accent" />
+                    FurnishAR 3D
+                </h1>
+                <p className="text-xs text-premium-400">Professional Floor Planner</p>
+>>>>>>> aa7461d23baee1d5605273d4d700876aa9959ddf
             </div>
 
             <div className="flex border-b border-premium-800">
@@ -227,23 +257,36 @@ export const Sidebar = ({
                             <label className="text-xs font-bold text-premium-300 flex items-center gap-2 uppercase">
                                 <Undo size={14} /> History & Control
                             </label>
+<<<<<<< HEAD
 
                             <div className="grid grid-cols-2 gap-2">
                                 <button
                                     disabled={!canUndo}
                                     onClick={undo}
                                     className="flex items-center justify-center gap-2 py-2 bg-premium-800 border border-premium-700 rounded-lg text-xs font-medium transition-all hover:bg-premium-700 disabled:opacity-30 disabled:cursor-not-allowed"
+=======
+                            <div className="flex gap-2">
+                                <button
+                                    disabled={!canUndo}
+                                    onClick={undo}
+                                    className="flex-1 flex items-center justify-center gap-2 py-2 bg-premium-800 border border-premium-700 rounded-lg text-sm transition-all hover:bg-premium-700 disabled:opacity-30 disabled:cursor-not-allowed"
+>>>>>>> aa7461d23baee1d5605273d4d700876aa9959ddf
                                 >
                                     <Undo size={14} /> Undo
                                 </button>
                                 <button
                                     disabled={!canRedo}
                                     onClick={redo}
+<<<<<<< HEAD
                                     className="flex items-center justify-center gap-2 py-2 bg-premium-800 border border-premium-700 rounded-lg text-xs font-medium transition-all hover:bg-premium-700 disabled:opacity-30 disabled:cursor-not-allowed"
+=======
+                                    className="flex-1 flex items-center justify-center gap-2 py-2 bg-premium-800 border border-premium-700 rounded-lg text-sm transition-all hover:bg-premium-700 disabled:opacity-30 disabled:cursor-not-allowed"
+>>>>>>> aa7461d23baee1d5605273d4d700876aa9959ddf
                                 >
                                     <Redo size={14} /> Redo
                                 </button>
                             </div>
+<<<<<<< HEAD
 
                             <button
                                 onClick={() => {
@@ -256,6 +299,8 @@ export const Sidebar = ({
                                 <Trash2 size={14} /> CLEAR CANVAS
                             </button>
 
+=======
+>>>>>>> aa7461d23baee1d5605273d4d700876aa9959ddf
                             <button
                                 onClick={() => {
                                     const currentName = activeDesignId ? savedDesigns.find(d => d.id === activeDesignId)?.name : 'New Design';
@@ -268,6 +313,7 @@ export const Sidebar = ({
                             >
                                 <Save size={16} /> SAVE DESIGN
                             </button>
+<<<<<<< HEAD
 
                             <button
                                 onClick={() => window.print()}
@@ -275,6 +321,8 @@ export const Sidebar = ({
                             >
                                 <Printer size={16} /> PRINT DESIGN
                             </button>
+=======
+>>>>>>> aa7461d23baee1d5605273d4d700876aa9959ddf
                         </div>
                     </div>
                 )}
