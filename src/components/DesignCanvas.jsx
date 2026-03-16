@@ -301,11 +301,11 @@ export const DesignCanvas = ({ state, updateState, pushToHistory }) => {
             style={{ touchAction: 'none' }}
         >
             {/* Ambient Background Grid (Fixed) */}
-            <div className="absolute inset-0 opacity-10 pointer-events-none z-0" 
-                 style={{ backgroundImage: 'radial-gradient(rgba(59, 130, 246, 0.4) 1px, transparent 1px)', backgroundSize: `${zoom}px ${zoom}px` }} />
+            <div className="absolute inset-0 opacity-10 pointer-events-none z-0"
+                style={{ backgroundImage: 'radial-gradient(rgba(59, 130, 246, 0.4) 1px, transparent 1px)', backgroundSize: `${zoom}px ${zoom}px` }} />
 
             {/* Scrollable Workspace Area */}
-            <div 
+            <div
                 ref={containerRef}
                 className="absolute inset-0 overflow-auto scrollbar-premium flex flex-col z-10"
                 onClick={() => setSelectedId(null)}
@@ -313,17 +313,17 @@ export const DesignCanvas = ({ state, updateState, pushToHistory }) => {
                 {/* Centering Wrapper with generous padding to ensure room to scroll */}
                 <div className="min-w-max min-h-full flex items-center justify-center p-[20vw]">
                     {/* Workspace Grid Container */}
-                    <div 
+                    <div
                         className="relative shadow-[0_50px_100px_rgba(0,0,0,0.9)] rounded-[2rem] md:rounded-[3.5rem] border border-white/10 bg-[#0a0c10] flex items-center justify-center transition-all duration-300"
-                        style={{ 
+                        style={{
                             width: `${room.width * zoom}px`,
                             height: `${room.length * zoom}px`,
-                            overflow: 'visible' 
+                            overflow: 'visible'
                         }}
                     >
                         {/* Internal Texture Overlay */}
                         <div className="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] rounded-[2rem] md:rounded-[3.5rem] pointer-events-none overflow-hidden" />
-                        
+
                         <svg
                             ref={svgRef}
                             viewBox={`0 0 ${room.width} ${room.length}`}
@@ -343,7 +343,7 @@ export const DesignCanvas = ({ state, updateState, pushToHistory }) => {
                                     <stop offset="100%" stopColor="rgba(139, 92, 246, 0.2)" />
                                 </linearGradient>
                             </defs>
-                            
+
                             <rect width="100%" height="100%" fill="url(#fine-dots)" />
                             <rect width="100%" height="100%" fill="url(#dot-grid)" />
 
@@ -381,13 +381,13 @@ export const DesignCanvas = ({ state, updateState, pushToHistory }) => {
                                                 className={selectedId === item.id ? "animate-spin-slow" : ""}
                                                 style={{ transformOrigin: 'center', animationDuration: '10s' }}
                                             />
-                                            <rect 
-                                                x={-item.width / 2 - 0.15} 
-                                                y={-item.depth / 2 - 0.15} 
-                                                width={item.width + 0.3} 
-                                                height={item.depth + 0.3} 
-                                                rx="0.1" 
-                                                fill="rgba(59, 130, 246, 0.05)" 
+                                            <rect
+                                                x={-item.width / 2 - 0.15}
+                                                y={-item.depth / 2 - 0.15}
+                                                width={item.width + 0.3}
+                                                height={item.depth + 0.3}
+                                                rx="0.1"
+                                                fill="rgba(59, 130, 246, 0.05)"
                                             />
                                         </g>
                                     )}
@@ -477,15 +477,15 @@ export const DesignCanvas = ({ state, updateState, pushToHistory }) => {
                     <div className="flex flex-col items-center gap-3">
                         <span className="text-[9px] text-white/30 font-black uppercase tracking-widest font-outfit text-center">Zoom</span>
                         <div className="h-32 flex items-center justify-center">
-                             <input 
-                                type="range" 
-                                min="40" 
-                                max="200" 
-                                value={zoom} 
+                            <input
+                                type="range"
+                                min="40"
+                                max="200"
+                                value={zoom}
                                 onChange={(e) => setZoom(parseInt(e.target.value))}
                                 className="w-32 h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-accent -rotate-90"
                                 style={{ width: '120px' }}
-                             />
+                            />
                         </div>
                         <span className="text-xs text-white font-black font-outfit">{zoom}</span>
                     </div>
