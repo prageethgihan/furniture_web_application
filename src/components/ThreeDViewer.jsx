@@ -9,6 +9,13 @@ import {
     Grid,
     Float
 } from '@react-three/drei';
+import { Box } from 'lucide-react';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs) {
+    return twMerge(clsx(inputs));
+}
 
 // --- Professional Furniture Components (3D) ---
 const FurnitureBox = ({ width, depth, color, position, rotation, type, room }) => {
@@ -433,60 +440,94 @@ const Room = ({ room, items }) => {
 
 export const ThreeDViewer = ({ state }) => {
     return (
-        <div className="flex-1 bg-black relative w-full h-full min-h-[500px]">
-            <Canvas shadows dpr={[1, 2]} gl={{ preserveDrawingBuffer: true }}>
-                <PerspectiveCamera makeDefault position={[10, 8, 10]} fov={40} />
-                <color attach="background" args={['#0d1117']} />
+        <div className="flex-1 bg-black relative w-full h-full min-h-[500px] overflow-hidden mesh-bg">
+            <Canvas shadows dpr={[1, 2]} gl={{ preserveDrawingBuffer: true, antialias: true }}>
+                <PerspectiveCamera makeDefault position={[12, 10, 12]} fov={35} />
+                <color attach="background" args={['#05070a']} />
 
-                <ambientLight intensity={0.4} />
+                <ambientLight intensity={0.5} />
                 <directionalLight
-                    position={[5, 10, 5]}
-                    intensity={1.2}
+                    position={[10, 20, 10]}
+                    intensity={1.5}
                     castShadow
                     shadow-mapSize={[2048, 2048]}
                 />
-                <pointLight position={[-10, 5, -10]} intensity={0.4} color="#58a6ff" />
+                
+                {/* Neon Studio Lights */}
+                <pointLight position={[-15, 10, -15]} intensity={1.5} color="#3b82f6" />
+                <pointLight position={[15, 10, 15]} intensity={1.5} color="#8b92f6" />
+                <pointLight position={[0, 5, 20]} intensity={1} color="#f472b6" />
 
                 <Suspense fallback={null}>
-                    <Environment preset="city" />
+                    <Environment preset="night" />
                 </Suspense>
 
                 <OrbitControls
                     makeDefault
                     enableDamping
-                    minDistance={2}
-                    maxDistance={40}
+                    dampingFactor={0.05}
+                    minDistance={3}
+                    maxDistance={60}
                     maxPolarAngle={Math.PI / 2.1}
                 />
 
-                <Room room={state.room} items={state.items} />
+                <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.5}>
+                    <Room room={state.room} items={state.items} />
+                </Float>
 
                 <ContactShadows
                     position={[0, -0.01, 0]}
-                    opacity={0.5}
-                    scale={20}
-                    blur={2.5}
-                    far={10}
+                    opacity={0.6}
+                    scale={30}
+                    blur={2}
+                    far={15}
                 />
 
                 <Grid
-                    sectionSize={1}
-                    sectionColor="#58a6ff"
-                    cellSize={0.2}
-                    cellColor="#333"
+                    sectionSize={5}
+                    sectionColor="#3b82f6"
+                    sectionThickness={1.5}
+                    cellSize={1}
+                    cellColor="#1e293b"
+                    cellThickness={0.8}
                     infiniteGrid
-                    fadeDistance={30}
-                    position={[0, 0, 0]}
+                    fadeDistance={50}
+                    fadeStrength={10}
+                    position={[0, -0.02, 0]}
                 />
             </Canvas>
 
-            <div className="absolute bottom-10 left-10 flex gap-4 pointer-events-none select-none">
-                <div className="glass px-4 py-3 border border-white/10 rounded-2xl flex items-center gap-4">
+            {/* Premium 3D HUD */}
+            <div className="absolute bottom-6 left-6 right-6 md:right-auto md:bottom-12 md:left-12 flex flex-col md:flex-row items-center gap-6 md:gap-10 glass-panel px-6 py-4 md:px-8 md:py-5 rounded-[1.5rem] md:rounded-[2.5rem] border-white/5 backdrop-blur-3xl scale-90 md:scale-100 origin-bottom-left z-40">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent to-accent-alt flex items-center justify-center shadow-lg shadow-accent/20">
+                        <Box className="text-white" size={24} />
+                    </div>
                     <div className="flex flex-col">
-                        <span className="text-[10px] text-accent font-black tracking-widest uppercase">3D RENDER ENGINE</span>
-                        <span className="text-xs text-white/80 font-medium">PRECISION MODELS LOADED</span>
+                        <span className="text-[10px] text-white/30 font-black uppercase tracking-[0.3em] font-outfit">Perspective Engine</span>
+                        <div className="flex items-center gap-2">
+                             <span className="text-sm text-white font-black font-outfit uppercase">Spatial Studio Mode</span>
+                             <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                        </div>
                     </div>
                 </div>
+                
+                <div className="w-px h-10 bg-white/5" />
+                
+                <div className="flex flex-col">
+                    <span className="text-[10px] text-white/30 font-black uppercase tracking-[0.2em] font-outfit mb-1">Compute Load</span>
+                    <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5, 6].map(i => (
+                            <div key={i} className={cn("w-3 h-1.5 rounded-full", i < 5 ? "bg-accent/40" : "bg-white/5")} />
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Corner Versioning */}
+            <div className="absolute top-12 right-12 text-right pointer-events-none opacity-40">
+                <p className="text-[10px] font-black text-white/40 tracking-[0.4em] uppercase font-outfit">Render_Node_Alpha</p>
+                <p className="text-[9px] font-black text-accent-alt/60 font-mono">RX_4492_STUDIO</p>
             </div>
         </div>
     );
