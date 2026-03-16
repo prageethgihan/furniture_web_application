@@ -43,7 +43,7 @@ const FurnitureBox = ({ width, depth, color, position, rotation, type, room }) =
     return (
         <group position={pos} rotation={[0, -rotation * (Math.PI / 180), 0]}>
 
-            {/* --- TABLE MODEL --- */}
+            {/* TABLE MODEL */}
             {type === 'table' && (
                 <group>
                     {/* Table Top */}
@@ -60,7 +60,7 @@ const FurnitureBox = ({ width, depth, color, position, rotation, type, room }) =
                 </group>
             )}
 
-            {/* --- CHAIR MODEL --- */}
+            {/* CHAIR MODEL */}
             {type === 'chair' && (
                 <group>
                     {/* Seat */}
@@ -81,7 +81,7 @@ const FurnitureBox = ({ width, depth, color, position, rotation, type, room }) =
                 </group>
             )}
 
-            {/* --- SOFA MODEL --- */}
+            {/* SOFA MODEL */}
             {type === 'sofa' && (
                 <group>
                     {/* Main Base Seat */}
@@ -102,7 +102,7 @@ const FurnitureBox = ({ width, depth, color, position, rotation, type, room }) =
                 </group>
             )}
 
-            {/* --- BED MODEL --- */}
+            {/* BED MODEL */}
             {type === 'bed' && (
                 <group>
                     {/* Base Frame */}
@@ -120,7 +120,7 @@ const FurnitureBox = ({ width, depth, color, position, rotation, type, room }) =
                 </group>
             )}
 
-            {/* --- LAMP MODEL --- */}
+            {/* LAMP MODEL */}
             {type === 'lamp' && (
                 <group>
                     {/* Stem */}
@@ -142,7 +142,7 @@ const FurnitureBox = ({ width, depth, color, position, rotation, type, room }) =
                 </group>
             )}
 
-            {/* --- WARDROBE MODEL --- */}
+            {/* WARDROBE MODEL */}
             {type === 'wardrobe' && (
                 <group>
                     <RoundedBox args={[width, 2.0, depth]} radius={0.02} position={[0, 1.0, 0]} castShadow receiveShadow>
@@ -165,7 +165,7 @@ const FurnitureBox = ({ width, depth, color, position, rotation, type, room }) =
                 </group>
             )}
 
-            {/* --- SHELF MODEL --- */}
+            {/* SHELF MODEL */}
             {type === 'shelf' && (
                 <group>
                     <RoundedBox args={[width, 1.8, depth]} radius={0.01} position={[0, 0.9, 0]} castShadow receiveShadow>
@@ -181,7 +181,7 @@ const FurnitureBox = ({ width, depth, color, position, rotation, type, room }) =
                 </group>
             )}
 
-            {/* --- RUG MODEL --- */}
+            {/* RUG MODEL */}
             {type === 'rug' && (
                 <group>
                     <mesh position={[0, 0.01, 0]} receiveShadow>
@@ -191,7 +191,7 @@ const FurnitureBox = ({ width, depth, color, position, rotation, type, room }) =
                 </group>
             )}
 
-            {/* --- DESKTOP MODEL --- */}
+            {/* DESKTOP MODEL */}
             {type === 'desktop' && (
                 <group>
                     {/* Table Base */}
@@ -220,7 +220,7 @@ const FurnitureBox = ({ width, depth, color, position, rotation, type, room }) =
                 </group>
             )}
 
-            {/* --- WINDOW/DOOR --- */}
+            {/* WINDOW/DOOR */}
             {(type === 'window' || type === 'door') && (
                 <group>
                     <RoundedBox args={[width, type === 'door' ? 2 : 1.2, depth]} radius={0.01} position={[0, type === 'door' ? 1 : 1.5, 0]} castShadow receiveShadow>
@@ -229,7 +229,7 @@ const FurnitureBox = ({ width, depth, color, position, rotation, type, room }) =
                 </group>
             )}
 
-            {/* --- TV UNIT MODEL --- */}
+            {/* TV UNIT MODEL */}
             {type === 'tv_unit' && (
                 <group>
                     {/* TV Stand Base */}
@@ -342,6 +342,7 @@ const FurnitureBox = ({ width, depth, color, position, rotation, type, room }) =
                             <meshStandardMaterial color="#ffffff22" />
                         </mesh>
                     ))}
+
                     {/* Door Handles */}
                     {[...Array(4)].map((_, i) => (
                         <mesh key={`handle-${i}`} position={[-width / 2 + (width / 4) / 2 + i * (width / 4) + (i % 2 === 0 ? 0.08 : -0.08), 0.7, depth / 2 + 0.03]} castShadow>
