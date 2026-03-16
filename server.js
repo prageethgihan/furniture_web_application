@@ -1,5 +1,5 @@
 import express from 'express';
-import mysql from 'mysql2/promise';
+import sqlite3 from 'sqlite3';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -19,26 +19,14 @@ app.use(express.static(path.join(__dirname, 'dist')));
 
 const PORT = process.env.PORT || 5000;
 
-// Create Database connection pool
-const pool = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+// Create SQLite database connection
+const db = new sqlite3.Database('./furniture.db', (err) => {
+    if (err) {
+        console.error('❌ SQLite Connection Failed:', err.message);
+    } else {
+        console.log('✅ SQLite Connected successfully!');
+    }
 });
-
-// Test connection
-pool.getConnection()
-    .then(conn => {
-        console.log('✅ MySQL Connected successfully!');
-        conn.release();
-    })
-    .catch(err => {
-        console.error('❌ MySQL Connection Failed:', err.message);
-    });
 
 // Global error handlers
 process.on('unhandledRejection', (reason, promise) => {
@@ -51,24 +39,56 @@ process.on('uncaughtException', (err) => {
 // Setup Initial Database Tables and Superadmin
 const setupDatabase = async () => {
     try {
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                email VARCHAR(255) UNIQUE NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                role VARCHAR(50) DEFAULT 'user',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
+        await new Promise((resolve, reject) => {
+            db.run(`
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    email TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL,
+                    role TEXT DEFAULT 'user',
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `, (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
         console.log('✅ Users table is ready.');
+
+        await new Promise((resolve, reject) => {
+            db.run(`
+                CREATE TABLE IF NOT EXISTS designs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    design_data TEXT,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            `, (err) => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+        console.log('✅ Designs table is ready.');
 
         // Insert default superadmin
         const defaultEmail = 'superadmin@gmail.com';
         const defaultPassword = '123456789'; // In production, we should hash this
 
-        const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [defaultEmail]);
-        if (rows.length === 0) {
-            await pool.query('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', [defaultEmail, defaultPassword, 'superadmin']);
+        const existingUser = await new Promise((resolve, reject) => {
+            db.get('SELECT * FROM users WHERE email = ?', [defaultEmail], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+
+        if (!existingUser) {
+            await new Promise((resolve, reject) => {
+                db.run('INSERT INTO users (email, password, role) VALUES (?, ?, ?)', [defaultEmail, defaultPassword, 'superadmin'], function(err) {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
             console.log('✅ Default superadmin created.');
         }
     } catch (error) {
@@ -83,10 +103,15 @@ app.post('/api/login', async (req, res) => {
     try {
         // Also handling the typo the user made "gmial.com"
         const emailToCheck = email === 'superadmin@gmial.com' ? 'superadmin@gmail.com' : email;
-        const [rows] = await pool.query('SELECT * FROM users WHERE email = ? AND password = ?', [emailToCheck, password]);
+        const user = await new Promise((resolve, reject) => {
+            db.get('SELECT * FROM users WHERE email = ? AND password = ?', [emailToCheck, password], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
 
-        if (rows.length > 0) {
-            res.json({ success: true, user: { email: rows[0].email, role: rows[0].role } });
+        if (user) {
+            res.json({ success: true, user: { email: user.email, role: user.role } });
         } else {
             res.status(401).json({ success: false, error: 'Invalid email or password' });
         }
@@ -100,8 +125,13 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/designs', async (req, res) => {
     console.log('GET /api/designs requested');
     try {
-        const [rows] = await pool.query('SELECT * FROM designs ORDER BY updated_at DESC');
-        res.json(rows);
+        const designs = await new Promise((resolve, reject) => {
+            db.all('SELECT * FROM designs ORDER BY updated_at DESC', [], (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+        res.json(designs);
     } catch (error) {
         console.error('Error fetching designs:', error);
         res.status(500).json({ error: 'Internal Server Error', details: error.message });
@@ -115,17 +145,29 @@ app.post('/api/designs', async (req, res) => {
 
     try {
         if (id) {
-            await pool.query(
-                'UPDATE designs SET name = ?, design_data = ? WHERE id = ?',
-                [name, JSON.stringify(design_data), id]
-            );
+            await new Promise((resolve, reject) => {
+                db.run(
+                    'UPDATE designs SET name = ?, design_data = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                    [name, JSON.stringify(design_data), id],
+                    function(err) {
+                        if (err) reject(err);
+                        else resolve();
+                    }
+                );
+            });
             console.log(`✅ Design updated! (ID: ${id})`);
             res.json({ message: 'Design updated successfully', id });
         } else {
-            const [result] = await pool.query(
-                'INSERT INTO designs (name, design_data) VALUES (?, ?)',
-                [name || 'Untitled Design', JSON.stringify(design_data)]
-            );
+            const result = await new Promise((resolve, reject) => {
+                db.run(
+                    'INSERT INTO designs (name, design_data) VALUES (?, ?)',
+                    [name || 'Untitled Design', JSON.stringify(design_data)],
+                    function(err) {
+                        if (err) reject(err);
+                        else resolve({ insertId: this.lastID });
+                    }
+                );
+            });
             console.log(`✅ New Design saved! (ID: ${result.insertId})`);
             res.json({ message: 'Design saved successfully', id: result.insertId });
         }

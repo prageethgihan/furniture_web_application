@@ -328,8 +328,6 @@ export const Sidebar = ({
                             >
                                 <Printer size={18} /> Generate Report
                             </button>
-
-
                         </div>
                     </motion.div>
                 )}

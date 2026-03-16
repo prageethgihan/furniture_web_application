@@ -65,7 +65,7 @@ export default function Login() {
                             </div>
                             <div className="absolute -inset-2 bg-accent/20 blur-xl -z-10 animate-pulse" />
                         </motion.div>
-                        
+
                         <h1 className="text-4xl font-black text-white font-outfit tracking-tighter mb-2">
                             FURNISHAR
                             <span className="block text-xs font-black text-accent tracking-[0.5em] uppercase mt-1 opacity-80">Studio Edition</span>
@@ -83,7 +83,7 @@ export default function Login() {
                                 [ ERROR ]: {errorMsg}
                             </motion.div>
                         )}
-                        
+
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] font-outfit ml-1">Identity Vector</label>
                             <div className="relative group">
