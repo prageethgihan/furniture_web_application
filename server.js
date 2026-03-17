@@ -131,7 +131,12 @@ app.get('/api/designs', async (req, res) => {
                 else resolve(rows);
             });
         });
-        res.json(designs);
+        // Parse design_data from JSON string back to object for each design
+        const parsedDesigns = designs.map(d => ({
+            ...d,
+            design_data: typeof d.design_data === 'string' ? JSON.parse(d.design_data) : d.design_data
+        }));
+        res.json(parsedDesigns);
     } catch (error) {
         console.error('Error fetching designs:', error);
         res.status(500).json({ error: 'Internal Server Error', details: error.message });

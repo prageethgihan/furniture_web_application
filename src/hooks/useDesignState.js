@@ -116,7 +116,21 @@ export const useDesignState = () => {
     const loadSpecificDesign = useCallback((id) => {
         const design = savedDesigns.find(d => d.id === id);
         if (design) {
-            const loadedState = design.design_data;
+            // Safety: parse if design_data is a string (older records in DB)
+            let loadedState = design.design_data;
+            if (typeof loadedState === 'string') {
+                try {
+                    loadedState = JSON.parse(loadedState);
+                } catch (e) {
+                    console.error('Failed to parse design_data:', e);
+                    return;
+                }
+            }
+            // Validate that loaded state has required fields
+            if (!loadedState || !loadedState.room || !Array.isArray(loadedState.items)) {
+                console.error('Invalid design data structure:', loadedState);
+                return;
+            }
             setState(loadedState);
             setDesignId(design.id);
             historyRef.current = [loadedState];
