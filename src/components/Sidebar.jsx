@@ -18,7 +18,8 @@ import {
     ChevronLeft,
     X,
     AlertTriangle,
-    CheckCircle
+    CheckCircle,
+    Download
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -66,7 +67,8 @@ export const Sidebar = ({
     clearDesign,
     activeDesignId,
     viewMode,
-    setViewMode
+    setViewMode,
+    exportImageData
 }) => {
     const [activeTab, setActiveTab] = useState('room');
     const navigate = useNavigate();
@@ -102,6 +104,32 @@ export const Sidebar = ({
         } catch (e) {
             showToast('Save failed: ' + e.message, 'error');
         }
+    };
+
+    // Export a design as a PNG image
+    const downloadDesign = async (design) => {
+        try {
+            // Load design first to make it visible on canvas
+            await loadSpecificDesign(design.id);
+            // Wait a moment for canvas to render
+            setTimeout(async () => {
+                const success = await exportImageData(design.name);
+                if (success) showToast(`"${design.name}" exported as PNG!`, 'success');
+            }, 300);
+        } catch (e) {
+            showToast('Export failed', 'error');
+        }
+    };
+
+    // Export current workspace as PNG
+    const downloadCurrentDesign = async () => {
+        const activeName = activeDesignId
+            ? savedDesigns.find(d => d.id === activeDesignId)?.name || 'Current Design'
+            : 'Current Design';
+        
+        const success = await exportImageData(activeName);
+        if (success) showToast('Design exported as PNG!', 'success');
+        else showToast('Export failed', 'error');
     };
 
     // Get user from localStorage
@@ -349,6 +377,13 @@ export const Sidebar = ({
                             </button>
 
                             <button
+                                onClick={downloadCurrentDesign}
+                                className="w-full flex items-center justify-center gap-3 py-4 bg-white/5 border border-white/10 text-white font-outfit text-[10px] font-black tracking-[0.2em] rounded-2xl transition-all hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-400 uppercase group"
+                            >
+                                <Download size={18} className="group-hover:translate-y-0.5 transition-transform" /> Export as Image (PNG)
+                            </button>
+
+                            <button
                                 onClick={() => window.print()}
                                 className="w-full flex items-center justify-center gap-3 py-4 bg-white/5 border border-white/10 text-white font-outfit text-[10px] font-black tracking-[0.2em] rounded-2xl transition-all hover:bg-white/10 hover:border-white/20 uppercase"
                             >
@@ -425,39 +460,59 @@ export const Sidebar = ({
                                     </div>
                                 ) : (
                                     savedDesigns.map((design) => (
-                                        <button
+                                        <div
                                             key={design.id}
-                                            onClick={() => loadSpecificDesign(design.id)}
                                             className={cn(
-                                                "glass-card p-5 rounded-3xl text-left relative overflow-hidden group",
+                                                "glass-card rounded-3xl relative overflow-hidden group",
                                                 activeDesignId === design.id
                                                     ? "border-accent/50 bg-accent/5"
                                                     : ""
                                             )}
                                         >
-                                            <div className="flex items-center justify-between mb-2">
-                                                <span className={cn(
-                                                    "text-sm font-black font-outfit truncate max-w-[150px] tracking-tight uppercase",
-                                                    activeDesignId === design.id ? "text-accent" : "text-white"
-                                                )}>
-                                                    {design.name}
-                                                </span>
-                                                <span className="text-[9px] font-black text-white/20 font-mono tracking-tighter">
-                                                    REF_{design.id}
-                                                </span>
+                                            {/* Load area */}
+                                            <button
+                                                onClick={() => loadSpecificDesign(design.id)}
+                                                className="w-full p-5 text-left"
+                                            >
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className={cn(
+                                                        "text-sm font-black font-outfit truncate max-w-[150px] tracking-tight uppercase",
+                                                        activeDesignId === design.id ? "text-accent" : "text-white"
+                                                    )}>
+                                                        {design.name}
+                                                    </span>
+                                                    <span className="text-[9px] font-black text-white/20 font-mono tracking-tighter">
+                                                        REF_{design.id}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+                                                        <span className="text-[9px] font-black text-white/30 tracking-widest font-outfit uppercase">
+                                                            {new Date(design.updated_at).toLocaleDateString()} // {new Date(design.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </button>
+
+                                            {/* Download button strip */}
+                                            <div className="px-4 pb-4 pt-0 flex justify-end">
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); downloadDesign(design); }}
+                                                    title="Export as PNG image"
+                                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-white/30 text-[9px] font-black tracking-widest uppercase font-outfit hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-400 transition-all group/dl"
+                                                >
+                                                    <Download size={12} className="group-hover/dl:translate-y-0.5 transition-transform" />
+                                                    Export PNG
+                                                </button>
                                             </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
-                                                <span className="text-[9px] font-black text-white/30 tracking-widest font-outfit uppercase">
-                                                    {new Date(design.updated_at).toLocaleDateString()} // {new Date(design.updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                </span>
-                                            </div>
+
                                             {activeDesignId === design.id && (
                                                 <div className="absolute top-0 right-0 w-12 h-12 bg-accent/10 rounded-bl-[40px] flex items-center justify-end pr-3 pt-3">
                                                     <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
                                                 </div>
                                             )}
-                                        </button>
+                                        </div>
                                     ))
                                 )}
                             </div>

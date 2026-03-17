@@ -10,6 +10,7 @@ import Login from './pages/Login';
 
 function MainWorkspace() {
   const [viewMode, setViewMode] = useState('2d');
+  const canvasRef = React.useRef(null);
   const {
     state,
     updateState,
@@ -27,6 +28,14 @@ function MainWorkspace() {
     logout
   } = useDesignState();
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const exportImageData = async (name) => {
+    if (canvasRef.current) {
+        const fileName = `${(name || 'design').replace(/\s+/g, '_')}_export.png`;
+        return await canvasRef.current.exportPNG(fileName);
+    }
+    return false;
+  };
 
   return (
     <div className="flex flex-col md:flex-row h-screen w-full bg-premium-950 text-white font-inter select-none overflow-hidden mesh-bg">
@@ -49,6 +58,7 @@ function MainWorkspace() {
         activeDesignId={activeDesignId}
         viewMode={viewMode}
         setViewMode={setViewMode}
+        exportImageData={exportImageData}
       />
 
       {/* Main Content Area */}
@@ -94,6 +104,7 @@ function MainWorkspace() {
               className="w-full h-full flex flex-col relative"
             >
               <DesignCanvas
+                ref={canvasRef}
                 state={state}
                 updateState={updateState}
                 pushToHistory={pushToHistory}

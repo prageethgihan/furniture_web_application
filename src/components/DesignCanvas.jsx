@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useImperativeHandle, forwardRef } from 'react';
 import {
     RotateCcw,
     Trash2,
@@ -16,7 +16,7 @@ function cn(...inputs) {
     return twMerge(clsx(inputs));
 }
 
-export const DesignCanvas = ({ state, updateState, pushToHistory }) => {
+export const DesignCanvas = forwardRef(({ state, updateState, pushToHistory }, ref) => {
     const [selectedId, setSelectedId] = useState(null);
     const [isDragging, setIsDragging] = useState(false);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -27,6 +27,65 @@ export const DesignCanvas = ({ state, updateState, pushToHistory }) => {
     const containerRef = useRef(null);
     const { room, items } = state;
     const isNewDesign = items.length === 0;
+
+    // Expose export function to parent
+    useImperativeHandle(ref, () => ({
+        exportPNG: async (fileName = 'furnishar_design.png') => {
+            if (!svgRef.current) return;
+
+            // Deselect items for a clean export
+            setSelectedId(null);
+            setHoveredId(null);
+
+            // Wait a tick for selection markers to disappear
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            try {
+                const svgElement = svgRef.current;
+                const svgData = new XMLSerializer().serializeToString(svgElement);
+                const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(svgBlob);
+
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                
+                await new Promise((resolve, reject) => {
+                    img.onload = resolve;
+                    img.onerror = reject;
+                    img.src = url;
+                });
+
+                // Create a canvas with high resolution (e.g. 200px per meter)
+                const exportZoom = 200;
+                const canvas = document.createElement('canvas');
+                canvas.width = room.width * exportZoom;
+                canvas.height = room.length * exportZoom;
+                const ctx = canvas.getContext('2d');
+
+                // Draw background color (matching app theme)
+                ctx.fillStyle = '#0f1218';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw the SVG image
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Trigger download
+                const pngUrl = canvas.toDataURL('image/png', 1.0);
+                const downloadLink = document.createElement('a');
+                downloadLink.href = pngUrl;
+                downloadLink.download = fileName;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+
+                URL.revokeObjectURL(url);
+                return true;
+            } catch (err) {
+                console.error('PNG Export failed:', err);
+                return false;
+            }
+        }
+    }));
 
     // Constants
     const PIXELS_PER_METER = zoom;
@@ -510,5 +569,5 @@ export const DesignCanvas = ({ state, updateState, pushToHistory }) => {
             </div>
         </div>
     );
-};
+});
 
