@@ -73,31 +73,12 @@ export const useDesignState = () => {
             const result = await response.json();
             if (result.id) {
                 setDesignId(result.id);
-
-                // --- MODIFIED: Ask before download ---
-                if (window.confirm('Design saved to database! Would you like to download a local backup file (.json)?')) {
-                    const fileName = `${name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.json`;
-                    const fileData = JSON.stringify(dataToSave, null, 2);
-                    const blob = new Blob([fileData], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = fileName;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                    alert('Local backup downloaded successfully!');
-                } else {
-                    alert('Design saved to database (Local download skipped).');
-                }
-                // ------------------------------------------
-
                 loadDesignsList(); // Refresh list
+                return { success: true, message: `"${name}" saved successfully!` };
             }
         } catch (error) {
             console.error('Save failed:', error);
-            alert(`Failed to save design: ${error.message}`);
+            throw error;
         }
     }, [state, designId, savedDesigns]);
 

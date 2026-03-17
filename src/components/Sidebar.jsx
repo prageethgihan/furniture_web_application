@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     Square,
     Maximize,
@@ -15,7 +15,10 @@ import {
     PlusSquare,
     LogOut,
     Printer,
-    ChevronLeft
+    ChevronLeft,
+    X,
+    AlertTriangle,
+    CheckCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -67,6 +70,39 @@ export const Sidebar = ({
 }) => {
     const [activeTab, setActiveTab] = useState('room');
     const navigate = useNavigate();
+
+    // Modal state
+    const [saveModal, setSaveModal] = useState(false);
+    const [designNameInput, setDesignNameInput] = useState('');
+    const [wipeModal, setWipeModal] = useState(false);
+    const [toastMsg, setToastMsg] = useState(null);
+    const saveInputRef = useRef(null);
+
+    const showToast = (msg, type = 'success') => {
+        setToastMsg({ msg, type });
+        setTimeout(() => setToastMsg(null), 3000);
+    };
+
+    const openSaveModal = () => {
+        const currentName = activeDesignId
+            ? savedDesigns.find(d => d.id === activeDesignId)?.name || ''
+            : '';
+        setDesignNameInput(currentName);
+        setSaveModal(true);
+        setTimeout(() => saveInputRef.current?.focus(), 100);
+    };
+
+    const handleSaveConfirm = async () => {
+        const trimmedName = designNameInput.trim();
+        if (!trimmedName) return;
+        setSaveModal(false);
+        try {
+            const result = await saveDesign(trimmedName);
+            showToast(result?.message || `"${trimmedName}" saved!`, 'success');
+        } catch (e) {
+            showToast('Save failed: ' + e.message, 'error');
+        }
+    };
 
     // Get user from localStorage
     const userStr = localStorage.getItem('user');
@@ -296,24 +332,14 @@ export const Sidebar = ({
                             </div>
 
                             <button
-                                onClick={() => {
-                                    if (window.confirm('Wipe current workspace? Data cannot be recovered.')) {
-                                        clearDesign();
-                                    }
-                                }}
+                                onClick={() => setWipeModal(true)}
                                 className="w-full flex items-center justify-center gap-2 py-3.5 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-[10px] font-black tracking-[0.2em] transition-all hover:bg-red-500 hover:text-white uppercase font-outfit"
                             >
                                 <Trash2 size={16} /> Wipe Canvas
                             </button>
 
                             <button
-                                onClick={() => {
-                                    const currentName = activeDesignId ? savedDesigns.find(d => d.id === activeDesignId)?.name : 'New Design';
-                                    const name = window.prompt("Design Identifier:", currentName || '');
-                                    if (name !== null) {
-                                        saveDesign(name.trim() || undefined);
-                                    }
-                                }}
+                                onClick={openSaveModal}
                                 className="w-full relative group"
                             >
                                 <div className="absolute -inset-0.5 bg-gradient-to-r from-accent to-accent-alt rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-500"></div>
@@ -468,6 +494,135 @@ export const Sidebar = ({
                 </div>
             </div>
             </aside>
+
+            {/* ─── Save Modal ─── */}
+            <AnimatePresence>
+                {saveModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] flex items-center justify-center p-6"
+                        style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(12px)' }}
+                        onClick={() => setSaveModal(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.92, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.92, opacity: 0, y: 20 }}
+                            transition={{ type: 'spring', damping: 22, stiffness: 280 }}
+                            onClick={e => e.stopPropagation()}
+                            className="w-full max-w-sm bg-[#0f1218] border border-white/10 rounded-3xl p-8 shadow-2xl"
+                        >
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <p className="text-[10px] text-accent font-black tracking-[0.3em] uppercase font-outfit mb-1">Secure Storage Vault</p>
+                                    <h2 className="text-lg font-black text-white font-outfit tracking-tight">Commit Design</h2>
+                                </div>
+                                <button onClick={() => setSaveModal(false)} className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all">
+                                    <X size={18} />
+                                </button>
+                            </div>
+
+                            <div className="space-y-2 mb-6">
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest font-outfit">Design Name</label>
+                                <input
+                                    ref={saveInputRef}
+                                    type="text"
+                                    value={designNameInput}
+                                    onChange={e => setDesignNameInput(e.target.value)}
+                                    onKeyDown={e => e.key === 'Enter' && handleSaveConfirm()}
+                                    placeholder="e.g. Living Room v2"
+                                    className="w-full bg-black/50 border border-white/10 focus:border-accent/60 rounded-2xl px-4 py-3.5 text-sm text-white font-bold font-outfit focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all placeholder:text-white/20"
+                                />
+                            </div>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setSaveModal(false)}
+                                    className="flex-1 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-white/50 text-[10px] font-black tracking-widest uppercase font-outfit hover:bg-white/10 hover:text-white transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleSaveConfirm}
+                                    disabled={!designNameInput.trim()}
+                                    className="flex-1 py-3.5 rounded-2xl bg-accent text-white text-[10px] font-black tracking-widest uppercase font-outfit hover:bg-accent/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    <Save size={14} /> Commit
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ─── Wipe Confirm Modal ─── */}
+            <AnimatePresence>
+                {wipeModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[200] flex items-center justify-center p-6"
+                        style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(12px)' }}
+                        onClick={() => setWipeModal(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.92, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.92, opacity: 0, y: 20 }}
+                            transition={{ type: 'spring', damping: 22, stiffness: 280 }}
+                            onClick={e => e.stopPropagation()}
+                            className="w-full max-w-sm bg-[#0f1218] border border-red-500/20 rounded-3xl p-8 shadow-2xl"
+                        >
+                            <div className="flex flex-col items-center text-center gap-4 mb-7">
+                                <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                                    <AlertTriangle size={28} className="text-red-500" />
+                                </div>
+                                <div>
+                                    <h2 className="text-base font-black text-white font-outfit mb-1">Wipe Canvas?</h2>
+                                    <p className="text-xs text-white/40 font-outfit">All unsaved items will be permanently removed.</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setWipeModal(false)}
+                                    className="flex-1 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-white/50 text-[10px] font-black tracking-widest uppercase font-outfit hover:bg-white/10 hover:text-white transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => { setWipeModal(false); clearDesign(); }}
+                                    className="flex-1 py-3.5 rounded-2xl bg-red-500 text-white text-[10px] font-black tracking-widest uppercase font-outfit hover:bg-red-600 transition-all flex items-center justify-center gap-2"
+                                >
+                                    <Trash2 size={14} /> Wipe
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* ─── Toast Notification ─── */}
+            <AnimatePresence>
+                {toastMsg && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 30, scale: 0.95 }}
+                        className={cn(
+                            "fixed bottom-8 left-1/2 -translate-x-1/2 z-[300] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border text-sm font-bold font-outfit",
+                            toastMsg.type === 'error'
+                                ? 'bg-red-500/20 border-red-500/30 text-red-300'
+                                : 'bg-accent/20 border-accent/30 text-accent'
+                        )}
+                    >
+                        <CheckCircle size={18} />
+                        {toastMsg.msg}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </>
     );
 };
