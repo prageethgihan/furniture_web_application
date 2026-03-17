@@ -11,6 +11,7 @@ import Login from './pages/Login';
 function MainWorkspace() {
   const [viewMode, setViewMode] = useState('2d');
   const canvasRef = React.useRef(null);
+  const canvasRef3D = React.useRef(null);
   const {
     state,
     updateState,
@@ -30,10 +31,14 @@ function MainWorkspace() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const exportImageData = async (name) => {
-    if (canvasRef.current) {
-        const fileName = `${(name || 'design').replace(/\s+/g, '_')}_export.png`;
+    const fileName = `${(name || 'design').replace(/\s+/g, '_')}_export.png`;
+    
+    if (viewMode === '2d' && canvasRef.current) {
         return await canvasRef.current.exportPNG(fileName);
+    } else if (viewMode === '3d' && canvasRef3D.current) {
+        return await canvasRef3D.current.exportPNG(fileName);
     }
+    
     return false;
   };
 
@@ -120,6 +125,7 @@ function MainWorkspace() {
               className="w-full h-full"
             >
               <ThreeDViewer
+                ref={canvasRef3D}
                 state={state}
               />
             </motion.div>

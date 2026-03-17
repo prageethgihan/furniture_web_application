@@ -439,9 +439,36 @@ const Room = ({ room, items }) => {
     );
 };
 
-export const ThreeDViewer = ({ state }) => {
+export const ThreeDViewer = React.forwardRef(({ state }, ref) => {
+    const containerRef = React.useRef(null);
+
+    React.useImperativeHandle(ref, () => ({
+        exportPNG: async (fileName = 'furnishar_design_3d.png') => {
+            if (!containerRef.current) return false;
+            try {
+                // Find the WebGL canvas inside the container
+                const canvas = containerRef.current.querySelector('canvas');
+                if (!canvas) return false;
+                
+                // capture the current frame
+                const dataUrl = canvas.toDataURL('image/png', 1.0);
+                
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                return true;
+            } catch (err) {
+                console.error('3D Export failed:', err);
+                return false;
+            }
+        }
+    }));
+
     return (
-        <div className="flex-1 bg-black relative w-full h-full min-h-[500px] overflow-hidden mesh-bg">
+        <div ref={containerRef} className="flex-1 bg-black relative w-full h-full min-h-[500px] overflow-hidden mesh-bg">
             <Canvas shadows dpr={[1, 2]} gl={{ preserveDrawingBuffer: true, antialias: true }}>
                 <PerspectiveCamera makeDefault position={[12, 10, 12]} fov={35} />
                 <color attach="background" args={['#05070a']} />
@@ -532,4 +559,4 @@ export const ThreeDViewer = ({ state }) => {
             </div>
         </div>
     );
-};
+});
